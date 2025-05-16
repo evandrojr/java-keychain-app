@@ -63,15 +63,29 @@ java-keychain-app
 - Java 7 or higher
 - Gradle
 
-### Supported Operating Systems
+### Supported Operating Systems and Desktop Environments
 
-- **Linux** (tested on distributions with GNOME and KDE, using `secret-tool` or `kwalletcli` for keychain integration)
-- **macOS** (uses the built-in `security` command for keychain integration)
-- **Windows** (uses Windows Credential Manager via PowerShell)
+- **Linux**
+  - **Tested distributions:** Ubuntu 20.04+, Fedora 34+, Debian 11+, Arch Linux (2022+)
+  - **Supported desktop environments:**
+    - GNOME 3.36+
+    - KDE Plasma 5.18+
+  - **Keychain integration:**
+    - GNOME: `secret-tool` (libsecret)
+    - KDE: `kwalletcli`
+
+- **macOS**
+  - **Tested versions:** macOS 10.15 (Catalina)+, 11 (Big Sur), 12 (Monterey), 13 (Ventura)
+  - **Keychain integration:** Built-in `security` command
+
+- **Windows**
+  - **Tested versions:** Windows 10, Windows 11
+  - **Keychain integration:** Windows Credential Manager (via PowerShell)
+  - **Requirements:** PowerShell and the [CredentialManager](https://www.powershellgallery.com/packages/CredentialManager) module
 
 #### Windows Support
 
-On Windows, the application uses the Windows Credential Manager for secure password storage. This requires PowerShell and the [CredentialManager](https://www.powershellgallery.com/packages/CredentialManager) PowerShell module.
+On Windows, the application uses the Windows Credential Manager for secure password storage. This requires PowerShell and the CredentialManager PowerShell module.
 
 **To install the CredentialManager module:**
 1. Open PowerShell as Administrator
