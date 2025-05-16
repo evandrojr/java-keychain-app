@@ -43,6 +43,13 @@ test {
     }
 }
 
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+    options.compilerArgs << "-g" << "-Xlint:all" << "-Werror"
+}
+
+
+
 task runApp(type: JavaExec) {
     main = 'com.example.keychainapp.Main'
     classpath = sourceSets.main.runtimeClasspath

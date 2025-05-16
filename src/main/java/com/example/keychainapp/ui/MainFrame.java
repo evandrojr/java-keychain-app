@@ -9,6 +9,7 @@ import com.example.keychainapp.logic.SystemKeychain;
 import java.util.List;
 
 public class MainFrame extends JFrame {
+    private static final long serialVersionUID = 1L;
     private JTextField keyField;
     private JTextField valueField;
     private JButton saveButton;
