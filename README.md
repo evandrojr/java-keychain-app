@@ -1,10 +1,33 @@
+## How to Run with Auto Reload (Linux)
+
+If you want the application to automatically recompile and restart every time you save a `.java` file, you can use the `entr` utility (Linux only):
+
+1. Install entr:
+   ```
+   sudo apt-get install entr
+   ```
+
+2. In the project root, run:
+   ```
+   find src/main/java -name '*.java' | entr -r ./gradlew run
+   ```
+
+Every time you save a Java file, the application will be rebuilt and restarted automatically.
+
+## How to Run the Program
+
+To run the program normally, use:
+```
+./gradlew run
+```
+
 # Java Keychain App
 
-Este projeto é uma aplicação Java que permite ao usuário armazenar e recuperar dados sigilosos de forma segura utilizando o chaveiro criptografado do sistema operacional. A aplicação possui uma interface gráfica simples, onde o usuário pode cadastrar chaves e valores.
+This project is a Java application that allows users to securely store and retrieve sensitive data using the system's encrypted keychain (Linux GNOME/KDE, macOS). The application features a simple graphical interface where users can save and load passwords associated with a user.
 
-## Estrutura do Projeto
+## Project Structure
 
-O projeto é organizado da seguinte forma:
+The project is organized as follows:
 
 ```
 java-keychain-app
@@ -14,11 +37,11 @@ java-keychain-app
 │   │   │   └── com
 │   │   │       └── example
 │   │   │           └── keychainapp
-│   │   │               ├── Main.java          # Ponto de entrada da aplicação
+│   │   │               ├── Main.java          # Application entry point
 │   │   │               ├── ui
-│   │   │               │   └── MainFrame.java # Classe que representa a interface gráfica
+│   │   │               │   └── MainFrame.java # GUI class
 │   │   │               └── logic
-│   │   │                   └── KeychainService.java # Lógica para salvar e recuperar dados
+│   │   │                   └── SystemKeychain.java # OS keychain integration
 │   │   └── resources
 │   └── test
 │       ├── java
@@ -26,46 +49,58 @@ java-keychain-app
 │       │       └── example
 │       │           └── keychainapp
 │       │               └── logic
-│       │                   └── KeychainServiceTest.java # Testes automatizados
+│       │                   └── KeychainServiceTest.java # Automated tests
 │       └── resources
-├── build.gradle                # Script de construção do Gradle
-└── README.md                   # Documentação do projeto
+├── build.gradle                # Gradle build script
+└── README.md                   # Project documentation
 ```
 
-## Requisitos
+## Requirements
 
-- Java 7 ou superior
+- Java 7 or higher
 - Gradle
 
-## Como Executar a Aplicação
+## How to Run the Application
 
-1. Clone o repositório:
+1. Clone the repository:
    ```
-   git clone <URL_DO_REPOSITORIO>
+   git clone https://github.com/evandrojr/java-keychain-app
    cd java-keychain-app
    ```
 
-2. Compile o projeto usando o Gradle:
+2. Build the project using Gradle:
    ```
    ./gradlew build
    ```
 
-3. Execute a aplicação:
+
+3. Run the application:
    ```
    ./gradlew run
    ```
 
-## Como Executar os Testes
+## How to Generate the JAR
 
-Para executar os testes automatizados, utilize o seguinte comando:
+To generate a runnable JAR file, use:
+```
+./gradlew jar
+```
+The JAR will be created in `build/libs/`. To run it (replace VERSION with the actual version):
+```
+java -cp build/libs/java-keychain-app-VERSION.jar com.example.keychainapp.Main
+```
+
+## How to Run the Tests
+
+To run the automated tests, use the following command:
 ```
 ./gradlew test
 ```
 
-## Contribuições
+## Contributions
 
-Contribuições são bem-vindas! Sinta-se à vontade para abrir issues ou pull requests.
+Contributions are welcome! Feel free to open issues or pull requests.
 
-## Licença
+## License
 
-Este projeto está licenciado sob a MIT License - veja o arquivo [LICENSE](LICENSE) para mais detalhes.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
