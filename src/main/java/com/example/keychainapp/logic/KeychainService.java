@@ -12,33 +12,85 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.Security;
 import java.util.Base64;
+import java.security.SecureRandom;
+import java.util.logging.Logger;
 
+
+/**
+ * KeychainService
+ *
+ * - Gera uma senha aleatória forte para o KeyStore Java na primeira execução.
+ * - Salva essa senha no keychain do sistema operacional (Credential Manager, Keychain, GNOME Keyring).
+ * - Recupera a senha do keychain nas execuções seguintes.
+ * - Usa a senha para proteger o KeyStore, que armazena a chave AES usada para criptografar os valores.
+ * - Todos os passos são logados para facilitar auditoria e troubleshooting.
+ */
 public class KeychainService {
-
     private static final String KEYSTORE_TYPE = "JCEKS";
     private static final String KEYSTORE_PATH = System.getProperty("user.home") + "/keychain.jks";
-    private static final String KEYSTORE_PASSWORD = "your_keystore_password";
     private static final String KEY_ALIAS = "keychain_key";
+    private static final String KEYCHAIN_SERVICE = "JavaKeychainApp";
+    private static final String KEYCHAIN_KEY = "keystore-password";
+    private String keystorePassword;
+    private static final Logger LOGGER = Logger.getLogger(KeychainService.class.getName());
+
 
     public KeychainService() {
         try {
+            LOGGER.info("[KeychainService] Iniciando serviço de keychain seguro...");
+            keystorePassword = loadOrGenerateKeystorePassword();
             initializeKeyStore();
+            LOGGER.info("[KeychainService] KeyStore inicializado e pronto para uso.");
         } catch (Exception e) {
+            LOGGER.severe("[KeychainService] Erro ao inicializar o serviço: " + e.getMessage());
             e.printStackTrace();
         }
     }
 
+    /**
+     * Recupera a senha do KeyStore do keychain do SO, ou gera uma nova se não existir.
+     * Loga cada passo do processo.
+     */
+    private String loadOrGenerateKeystorePassword() {
+        LOGGER.info("[KeychainService] Buscando senha do KeyStore no keychain do SO...");
+        String pwd = SystemKeychain.loadPassword(KEYCHAIN_SERVICE, KEYCHAIN_KEY);
+        if (pwd != null && !pwd.isEmpty()) {
+            LOGGER.info("[KeychainService] Senha do KeyStore encontrada no keychain do SO.");
+            return pwd;
+        }
+        LOGGER.info("[KeychainService] Senha do KeyStore não encontrada. Gerando nova senha aleatória...");
+        SecureRandom random = new SecureRandom();
+        byte[] bytes = new byte[32];
+        random.nextBytes(bytes);
+        String generated = Base64.getEncoder().encodeToString(bytes);
+        boolean ok = SystemKeychain.savePassword(KEYCHAIN_SERVICE, KEYCHAIN_KEY, generated);
+        if (ok) {
+            LOGGER.info("[KeychainService] Nova senha salva no keychain do SO com sucesso.");
+        } else {
+            LOGGER.severe("[KeychainService] Falha ao salvar a senha no keychain do SO!");
+        }
+        return generated;
+    }
+
+    /**
+     * Inicializa o KeyStore Java, criando um novo se não existir.
+     * Loga o processo para auditoria.
+     */
     private void initializeKeyStore() throws Exception {
         if (!Files.exists(Paths.get(KEYSTORE_PATH))) {
+            LOGGER.info("[KeychainService] KeyStore não encontrado. Criando novo KeyStore protegido por senha do keychain...");
             KeyStore keyStore = KeyStore.getInstance(KEYSTORE_TYPE);
             keyStore.load(null, null);
             KeyGenerator keyGen = KeyGenerator.getInstance("AES");
             keyGen.init(256);
             SecretKey secretKey = keyGen.generateKey();
-            keyStore.setKeyEntry(KEY_ALIAS, secretKey, KEYSTORE_PASSWORD.toCharArray(), null);
+            keyStore.setKeyEntry(KEY_ALIAS, secretKey, keystorePassword.toCharArray(), null);
             try (FileOutputStream fos = new FileOutputStream(KEYSTORE_PATH)) {
-                keyStore.store(fos, KEYSTORE_PASSWORD.toCharArray());
+                keyStore.store(fos, keystorePassword.toCharArray());
             }
+            LOGGER.info("[KeychainService] Novo KeyStore criado e salvo em " + KEYSTORE_PATH);
+        } else {
+            LOGGER.info("[KeychainService] KeyStore já existe em " + KEYSTORE_PATH);
         }
     }
 
@@ -68,8 +120,8 @@ public class KeychainService {
     private SecretKey getSecretKey() throws Exception {
         KeyStore keyStore = KeyStore.getInstance(KEYSTORE_TYPE);
         try (FileInputStream fis = new FileInputStream(KEYSTORE_PATH)) {
-            keyStore.load(fis, KEYSTORE_PASSWORD.toCharArray());
+            keyStore.load(fis, keystorePassword.toCharArray());
         }
-        return (SecretKey) keyStore.getKey(KEY_ALIAS, KEYSTORE_PASSWORD.toCharArray());
+        return (SecretKey) keyStore.getKey(KEY_ALIAS, keystorePassword.toCharArray());
     }
 }

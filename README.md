@@ -70,9 +70,31 @@ On Windows, the application uses the Windows Credential Manager for secure passw
 - Java 7 or higher (64-bit recommended)
 - Windows 10 or 11
 
+
 **How it works:**
-- The app uses native Windows API (Credential Manager) via JNA for secure password storage and retrieval.
-- All credential data is stored encrypted by Windows.
+- The app uses the system keychain (Credential Manager, Keychain, GNOME Keyring) for secure password storage and retrieval.
+- All credential data is stored encrypted by the OS.
+- For extra security, the Java KeyStore (JCEKS) used to encrypt local values is protected by a strong random password, which is itself stored in the system keychain.
+- The password for the KeyStore is never hardcoded or shown to the user.
+- All steps are logged for audit and troubleshooting.
+
+**KeyStore password management flow:**
+1. On first run, the app tries to load the KeyStore password from the system keychain.
+2. If not found, it generates a strong random password, saves it in the keychain, and uses it to create the KeyStore.
+3. On subsequent runs, the password is loaded from the keychain and used to open the KeyStore.
+4. The KeyStore stores the AES key used to encrypt/decrypt values saved locally.
+5. All steps are logged to the console.
+
+**Log example:**
+```
+[KeychainService] Iniciando serviço de keychain seguro...
+[KeychainService] Buscando senha do KeyStore no keychain do SO...
+[KeychainService] Senha do KeyStore não encontrada. Gerando nova senha aleatória...
+[KeychainService] Nova senha salva no keychain do SO com sucesso.
+[KeychainService] KeyStore não encontrado. Criando novo KeyStore protegido por senha do keychain...
+[KeychainService] Novo KeyStore criado e salvo em /home/usuario/keychain.jks
+[KeychainService] KeyStore inicializado e pronto para uso.
+```
 
 **Troubleshooting:**
 - If you see errors like `UnsatisfiedLinkError` or issues saving/loading passwords:
