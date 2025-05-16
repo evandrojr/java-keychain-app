@@ -85,16 +85,19 @@ java-keychain-app
 
 #### Windows Support
 
-On Windows, the application uses the Windows Credential Manager for secure password storage. This requires PowerShell and the CredentialManager PowerShell module.
+On Windows, the application uses the Windows Credential Manager for secure password storage. This requires PowerShell e o módulo CredentialManager.
 
-**To install the CredentialManager module:**
-1. Open PowerShell as Administrator
-2. Run:
-   ```
-   Install-Module -Name CredentialManager -Scope CurrentUser
-   ```
+**Se ocorrer erro ao salvar ou recuperar senhas no Windows:**
+- Certifique-se de que o PowerShell está instalado e atualizado.
+  - Se não estiver instalado, baixe e instale o PowerShell pelo site oficial: https://github.com/PowerShell/PowerShell
+- Instale o módulo CredentialManager:
+  1. Abra o PowerShell como Administrador
+  2. Execute:
+     ```
+     Install-Module -Name CredentialManager -Scope CurrentUser
+     ```
 
-No additional dependencies are required beyond Java and Gradle.
+Após instalar, tente novamente. Não são necessárias outras dependências além de Java e Gradle.
 
 ## Installing Dependencies
 

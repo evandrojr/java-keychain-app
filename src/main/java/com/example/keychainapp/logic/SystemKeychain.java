@@ -35,9 +35,15 @@ public class SystemKeychain {
                     "cmdkey /add:%s /user:%s /pass:%s",
                     password.replace("'", "''"), target, user, password.replace("'", "''")
                 );
-                ProcessBuilder pb = new ProcessBuilder("powershell.exe", "-Command", psCommand);
-                Process p = pb.start();
-                return p.waitFor() == 0;
+                try {
+                    ProcessBuilder pb = new ProcessBuilder("powershell.exe", "-Command", psCommand);
+                    Process p = pb.start();
+                    return p.waitFor() == 0;
+                } catch (Exception e) {
+                    System.err.println("[Windows] Erro ao acessar o Credential Manager. Certifique-se de que o PowerShell e o módulo CredentialManager estão instalados. Veja o README para instruções.");
+                    e.printStackTrace();
+                    return false;
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -79,13 +85,18 @@ public class SystemKeychain {
                     "$cred = Get-StoredCredential -Target '%s'; if ($cred) { [System.Runtime.InteropServices.Marshal]::PtrToStringAuto([System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($cred.Password)) }",
                     target.replace("'", "''")
                 );
-                // Note: Get-StoredCredential is available in the CredentialManager PowerShell module
-                ProcessBuilder pb = new ProcessBuilder("powershell.exe", "-Command", psCommand);
-                Process p = pb.start();
-                BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream(), "UTF-8"));
-                String password = reader.readLine();
-                p.waitFor();
-                return password;
+                try {
+                    ProcessBuilder pb = new ProcessBuilder("powershell.exe", "-Command", psCommand);
+                    Process p = pb.start();
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream(), "UTF-8"));
+                    String password = reader.readLine();
+                    p.waitFor();
+                    return password;
+                } catch (Exception e) {
+                    System.err.println("[Windows] Erro ao acessar o Credential Manager. Certifique-se de que o PowerShell e o módulo CredentialManager estão instalados. Veja o README para instruções.");
+                    e.printStackTrace();
+                    return null;
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
