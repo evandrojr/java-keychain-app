@@ -29,6 +29,7 @@ public class SystemKeychain {
 
     private SystemKeychain() { /* utilitário */ }
     public static boolean savePassword(String service, String user, String password) {
+        LOGGER.info("[Keychain] savePassword chamado para service='" + service + "', user='" + user + "'");
         String os = System.getProperty(OS_NAME).toLowerCase();
         try {
             if (os.contains("mac")) {
@@ -71,19 +72,21 @@ public class SystemKeychain {
                     cred.attributes = null;
                     cred.targetAlias = null;
                     cred.userName = user;
-                    boolean result = WinCred.INSTANCE.CredWrite(cred, 0);
-                    if (!result) {
+                    boolean result = WinCred.INSTANCE.CredWriteW(cred, 0);
+                    if (result) {
+                        LOGGER.info("[Windows] Credencial salva com sucesso no Credential Manager: " + target);
+                    } else {
                         int err = Kernel32.INSTANCE.GetLastError();
                         LOGGER.log(Level.SEVERE, "[Windows] Erro ao salvar credencial: {0}", err);
                     }
                     return result;
                 } catch (Exception e) {
-                    LOGGER.log(Level.SEVERE, "[Windows] Erro ao acessar o Credential Manager via JNA. Veja o README para instruções.", e);
+                    LOGGER.log(Level.SEVERE, "[Windows] Exceção ao acessar o Credential Manager via JNA. Veja o README para instruções.", e);
                     return false;
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, "[Keychain] Exceção inesperada em savePassword", e);
         }
         return false;
     }
@@ -98,7 +101,7 @@ public class SystemKeychain {
             try {
                 PointerByReference pCredentials = new PointerByReference();
                 IntByReference pCount = new IntByReference();
-                boolean result = WinCred.INSTANCE.CredEnumerate(null, 0, pCount, pCredentials);
+                boolean result = WinCred.INSTANCE.CredEnumerateW(null, 0, pCount, pCredentials);
                 if (result) {
                     int count = pCount.getValue();
                     Pointer credArray = pCredentials.getValue();
@@ -152,14 +155,20 @@ public class SystemKeychain {
                 String target = service + ":" + user;
                 try {
                     PointerByReference pCred = new PointerByReference();
-                    boolean found = WinCred.INSTANCE.CredRead(target, WinCred.CRED_TYPE_GENERIC, 0, pCred);
+                    boolean found = WinCred.INSTANCE.CredReadW(target, WinCred.CRED_TYPE_GENERIC, 0, pCred);
                     if (found) {
                         WinCred.CREDENTIAL cred = new WinCred.CREDENTIAL(pCred.getValue());
                         cred.read();
                         int len = cred.credentialBlobSize.intValue();
-                        String password = cred.credentialBlob.getString(0, StandardCharsets.UTF_16LE.name());
+                        byte[] passwordBytes = cred.credentialBlob.getByteArray(0, len);
+                        String password = new String(passwordBytes, StandardCharsets.UTF_16LE);
+                        // Remove null terminator if present
+                        int nullIndex = password.indexOf('\0');
+                        if (nullIndex != -1) {
+                            password = password.substring(0, nullIndex);
+                        }
                         WinCred.INSTANCE.CredFree(pCred.getValue());
-                        return password.substring(0, (len / 2) - 1); // remove null terminator
+                        return password;
                     } else {
                         int err = Kernel32.INSTANCE.GetLastError();
                         LOGGER.log(Level.WARNING, "[Windows] Credencial não encontrada: {0}", err);
@@ -193,9 +202,9 @@ public class SystemKeychain {
 
         public interface Advapi32 extends Library {
             Advapi32 INSTANCE = Native.load("Advapi32", Advapi32.class);
-            boolean CredWrite(CREDENTIAL cred, int flags);
-            boolean CredRead(String target, int type, int reservedFlag, PointerByReference pCredential);
-            boolean CredEnumerate(String filter, int flags, IntByReference count, PointerByReference pCredentials);
+            boolean CredWriteW(CREDENTIAL cred, int flags);
+            boolean CredReadW(String target, int type, int reservedFlag, PointerByReference pCredential);
+            boolean CredEnumerateW(String filter, int flags, IntByReference count, PointerByReference pCredentials);
             void CredFree(Pointer cred);
         }
         public static final Advapi32 INSTANCE = Advapi32.INSTANCE;
