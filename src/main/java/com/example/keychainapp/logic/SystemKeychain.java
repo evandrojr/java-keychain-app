@@ -27,6 +27,17 @@ public class SystemKeychain {
                     osOut.close();
                     return p.waitFor() == 0;
                 }
+            } else if (os.contains("win")) {
+                // Use PowerShell to store credentials in Windows Credential Manager
+                String target = service + ":" + user;
+                String psCommand = String.format(
+                    "$pass = ConvertTo-SecureString '%s' -AsPlainText -Force; " +
+                    "cmdkey /add:%s /user:%s /pass:%s",
+                    password.replace("'", "''"), target, user, password.replace("'", "''")
+                );
+                ProcessBuilder pb = new ProcessBuilder("powershell.exe", "-Command", psCommand);
+                Process p = pb.start();
+                return p.waitFor() == 0;
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -61,6 +72,20 @@ public class SystemKeychain {
                     p.waitFor();
                     return password;
                 }
+            } else if (os.contains("win")) {
+                // Use PowerShell to retrieve credentials from Windows Credential Manager
+                String target = service + ":" + user;
+                String psCommand = String.format(
+                    "$cred = Get-StoredCredential -Target '%s'; if ($cred) { [System.Runtime.InteropServices.Marshal]::PtrToStringAuto([System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($cred.Password)) }",
+                    target.replace("'", "''")
+                );
+                // Note: Get-StoredCredential is available in the CredentialManager PowerShell module
+                ProcessBuilder pb = new ProcessBuilder("powershell.exe", "-Command", psCommand);
+                Process p = pb.start();
+                BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream(), "UTF-8"));
+                String password = reader.readLine();
+                p.waitFor();
+                return password;
             }
         } catch (Exception e) {
             e.printStackTrace();
