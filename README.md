@@ -57,10 +57,18 @@ java-keychain-app
 ```
 
 
-## Requirements
+
+## Requirements and Compatibility
 
 - Java 7 or higher
 - Gradle
+
+### Supported Operating Systems
+
+- **Linux** (tested on distributions with GNOME and KDE, using `secret-tool` or `kwalletcli` for keychain integration)
+- **macOS** (uses the built-in `security` command for keychain integration)
+
+> **Note:** On Windows, system keychain integration is not supported by default in this project.
 
 ## Installing Dependencies
 
