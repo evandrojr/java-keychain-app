@@ -29,7 +29,7 @@ public class SystemKeychain {
 
     private SystemKeychain() { /* utilitário */ }
     public static boolean savePassword(String service, String user, String password) {
-        LOGGER.info("[Keychain] savePassword chamado para service='" + service + "', user='" + user + "'");
+        LOGGER.info("[Keychain] savePassword chamado para service='" + service + "', key='" + user + "'");
         String os = System.getProperty(OS_NAME).toLowerCase();
         try {
             if (os.contains("mac")) {
@@ -38,7 +38,7 @@ public class SystemKeychain {
                 return p.waitFor() == 0;
             } else if (os.contains("linux")) {
                 if (isCommandAvailable(SECRET_TOOL)) {
-                    ProcessBuilder pb = new ProcessBuilder(SECRET_TOOL, "store", "--label=" + service, "service", service, "user", user);
+                    ProcessBuilder pb = new ProcessBuilder(SECRET_TOOL, "store", "--label=" + service, "service", service, "key", user);
                     Process p = pb.start();
                     OutputStream osOut = p.getOutputStream();
                     osOut.write(password.getBytes(StandardCharsets.UTF_8));
@@ -109,7 +109,7 @@ public class SystemKeychain {
                         Pointer pCred = credArray.getPointer((long) i * Native.POINTER_SIZE);
                         WinCred.CREDENTIAL cred = new WinCred.CREDENTIAL(pCred);
                         cred.read();
-                        sb.append("Target: ").append(cred.targetName).append(" | User: ").append(cred.userName).append(System.lineSeparator());
+                        sb.append("Target: ").append(cred.targetName).append(" | Key: ").append(cred.userName).append(System.lineSeparator());
                     }
                     WinCred.INSTANCE.CredFree(credArray);
                 } else {
@@ -130,25 +130,25 @@ public class SystemKeychain {
                 ProcessBuilder pb = new ProcessBuilder("security", "find-generic-password", "-a", user, "-s", service, "-w");
                 Process p = pb.start();
                 BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream(), StandardCharsets.UTF_8));
-                String password = reader.readLine();
+                String value = reader.readLine();
                 p.waitFor();
-                return password;
+                return value;
             } else if (os.contains("linux")) {
                 if (isCommandAvailable(SECRET_TOOL)) {
-                    ProcessBuilder pb = new ProcessBuilder(SECRET_TOOL, "lookup", "service", service, "user", user);
+                    ProcessBuilder pb = new ProcessBuilder(SECRET_TOOL, "lookup", "service", service, "key", user);
                     Process p = pb.start();
                     BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream(), StandardCharsets.UTF_8));
-                    String password = reader.readLine();
+                    String value = reader.readLine();
                     p.waitFor();
-                    return password;
+                    return value;
                 }
                 if (isCommandAvailable(KWALLETCLI)) {
                     ProcessBuilder pb = new ProcessBuilder(KWALLETCLI, "-f", service, "-r", user);
                     Process p = pb.start();
                     BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream(), StandardCharsets.UTF_8));
-                    String password = reader.readLine();
+                    String value = reader.readLine();
                     p.waitFor();
-                    return password;
+                    return value;
                 }
             } else if (os.contains("win")) {
                 // Usa JNA para ler a senha do Windows Credential Manager

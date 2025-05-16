@@ -26,11 +26,11 @@ public class MainFrame extends JFrame {
         JPanel inputPanel = new JPanel();
         inputPanel.setLayout(new GridLayout(3, 2));
 
-        inputPanel.add(new JLabel("User:"));
+        inputPanel.add(new JLabel("Key:"));
         keyField = new JTextField();
         inputPanel.add(keyField);
 
-        inputPanel.add(new JLabel("Password:"));
+        inputPanel.add(new JLabel("Value:"));
         valueField = new JTextField();
         inputPanel.add(valueField);
 
@@ -50,7 +50,7 @@ public class MainFrame extends JFrame {
 
 
         // Mensagem inicial
-        outputArea.append("Enter the user and click Load to fetch the password.\n");
+        outputArea.append("Enter the key and click Load to fetch the value.\n");
         loadButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -58,12 +58,14 @@ public class MainFrame extends JFrame {
                 if (key != null && !key.isEmpty()) {
                     String loaded = SystemKeychain.loadPassword("KeychainApp", key);
                     if (loaded != null) {
-                        outputArea.append("Password loaded for user '" + key + "': " + loaded + "\n");
+                        valueField.setText(loaded);
+                        outputArea.append("Value loaded for key '" + key + "': " + loaded + "\n");
                     } else {
-                        outputArea.append("No password found for user '" + key + "'.\n");
+                        valueField.setText("");
+                        outputArea.append("No value found for key '" + key + "'.\n");
                     }
                 } else {
-                    outputArea.append("Please enter the user to load the password.\n");
+                    outputArea.append("Please enter the key to load the value.\n");
                 }
             }
         });
@@ -76,7 +78,7 @@ public class MainFrame extends JFrame {
                 if (key != null && !key.isEmpty() && value != null && !value.isEmpty()) {
                     boolean ok = SystemKeychain.savePassword("KeychainApp", key, value);
                     if (ok) {
-                        outputArea.append("Password saved in the system keychain for user: " + key + "\n");
+                        outputArea.append("Value saved in the system keychain for key: " + key + "\n");
                     } else {
                         outputArea.append("Error saving to the system keychain.\n");
                     }
