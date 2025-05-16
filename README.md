@@ -87,9 +87,12 @@ java-keychain-app
 
 On Windows, the application uses the Windows Credential Manager for secure password storage. This requires PowerShell e o módulo CredentialManager.
 
+
 **Se ocorrer erro ao salvar ou recuperar senhas no Windows:**
 - Certifique-se de que o PowerShell está instalado e atualizado.
-  - Se não estiver instalado, baixe e instale o PowerShell pelo site oficial: https://github.com/PowerShell/PowerShell
+  - Se não estiver instalado, instale pela Microsoft Store (recomendado) ou pelo site oficial:
+    - [PowerShell na Microsoft Store](ms-windows-store://pdp/?productid=9MZ1SNWT0N5D)
+    - [PowerShell no site oficial](https://github.com/PowerShell/PowerShell)
 - Instale o módulo CredentialManager:
   1. Abra o PowerShell como Administrador
   2. Execute:
