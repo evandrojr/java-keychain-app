@@ -55,10 +55,41 @@ java-keychain-app
 └── README.md                   # Project documentation
 ```
 
+
 ## Requirements
 
 - Java 7 or higher
 - Gradle
+
+## Installing Dependencies
+
+All Java dependencies are managed automatically by Gradle. The first time you run any Gradle command, dependencies will be downloaded automatically.
+
+If you want to download all dependencies manually, run:
+```
+./gradlew dependencies
+```
+
+No manual installation of Java libraries is required.
+
+### System dependencies for Linux keychain integration
+
+To use the system keychain integration on Linux, you need one of the following utilities installed:
+
+- For GNOME (most Ubuntu, Fedora, etc):
+  - `secret-tool` (package: `libsecret-tools`)
+  - Install with:
+    ```
+    sudo apt-get install libsecret-tools
+    ```
+- For KDE:
+  - `kwalletcli` (package: `kwalletcli`)
+  - Install with:
+    ```
+    sudo apt-get install kwalletcli
+    ```
+
+On macOS, no extra dependencies are needed (uses the built-in `security` command).
 
 ## How to Run the Application
 
