@@ -85,6 +85,24 @@ On Windows, the application uses the Windows Credential Manager for secure passw
 4. The KeyStore stores the AES key used to encrypt/decrypt values saved locally.
 5. All steps are logged to the console.
 
+**Extra protection: encryption of the KeyStore password before saving to the keychain**
+
+To further increase security, the KeyStore password is encrypted with a fixed AES key (hardcoded in the application) before being stored in the system keychain. This means:
+
+- Even if an attacker gains access to the keychain, they will only see the encrypted password, not the real KeyStore password.
+- Only the application (with the fixed key) can decrypt and use the real KeyStore password.
+- The fixed key is embedded in the application code. For maximum security, do not share or expose this key.
+
+**Flow summary:**
+
+1. On first run, the app generates a strong random password for the KeyStore.
+2. This password is encrypted with AES using a fixed key.
+3. The encrypted password is saved in the system keychain.
+4. On subsequent runs, the encrypted password is loaded from the keychain and decrypted in memory before use.
+5. The decrypted password is used to open the KeyStore.
+
+> **Note:** This adds an extra layer of protection, but if an attacker has access to both the keychain and the application binary (and can reverse engineer it), they may still recover the fixed key. This approach is a defense-in-depth measure, not a substitute for OS-level security.
+
 **Log example:**
 ```
 [KeychainService] Iniciando serviço de keychain seguro...

@@ -3,7 +3,7 @@ package com.example.keychainapp.logic;
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
+import com.example.keychainapp.logic.CryptoUtils;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -53,21 +53,31 @@ public class KeychainService {
      */
     private String loadOrGenerateKeystorePassword() {
         LOGGER.info("[KeychainService] Buscando senha do KeyStore no keychain do SO...");
-        String pwd = SystemKeychain.loadPassword(KEYCHAIN_SERVICE, KEYCHAIN_KEY);
-        if (pwd != null && !pwd.isEmpty()) {
-            LOGGER.info("[KeychainService] Senha do KeyStore encontrada no keychain do SO.");
-            return pwd;
+        String encryptedPwd = SystemKeychain.loadPassword(KEYCHAIN_SERVICE, KEYCHAIN_KEY);
+        if (encryptedPwd != null && !encryptedPwd.isEmpty()) {
+            try {
+                String pwd = CryptoUtils.decrypt(encryptedPwd);
+                LOGGER.info("[KeychainService] Senha do KeyStore encontrada no keychain do SO (criptografada).");
+                return pwd;
+            } catch (Exception e) {
+                LOGGER.severe("[KeychainService] Falha ao descriptografar a senha do KeyStore: " + e.getMessage());
+            }
         }
         LOGGER.info("[KeychainService] Senha do KeyStore não encontrada. Gerando nova senha aleatória...");
         SecureRandom random = new SecureRandom();
         byte[] bytes = new byte[32];
         random.nextBytes(bytes);
         String generated = Base64.getEncoder().encodeToString(bytes);
-        boolean ok = SystemKeychain.savePassword(KEYCHAIN_SERVICE, KEYCHAIN_KEY, generated);
-        if (ok) {
-            LOGGER.info("[KeychainService] Nova senha salva no keychain do SO com sucesso.");
-        } else {
-            LOGGER.severe("[KeychainService] Falha ao salvar a senha no keychain do SO!");
+        try {
+            String encrypted = CryptoUtils.encrypt(generated);
+            boolean ok = SystemKeychain.savePassword(KEYCHAIN_SERVICE, KEYCHAIN_KEY, encrypted);
+            if (ok) {
+                LOGGER.info("[KeychainService] Nova senha salva no keychain do SO com sucesso (criptografada).");
+            } else {
+                LOGGER.severe("[KeychainService] Falha ao salvar a senha no keychain do SO!");
+            }
+        } catch (Exception e) {
+            LOGGER.severe("[KeychainService] Falha ao criptografar a senha do KeyStore: " + e.getMessage());
         }
         return generated;
     }
