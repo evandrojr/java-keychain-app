@@ -64,11 +64,19 @@ public class MainFrame extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 String key = keyField.getText();
                 String value = valueField.getText();
-                // Call KeychainService to save the key-value pair
-                // KeychainService.save(key, value);
-                outputArea.append("Saved: " + key + " = " + value + "\n");
-                keyField.setText("");
-                valueField.setText("");
+                if (key != null && !key.isEmpty() && value != null && !value.isEmpty()) {
+                    try {
+                        KeychainService keychainService = new KeychainService();
+                        keychainService.save(key, value);
+                        outputArea.append("Saved: " + key + " = " + value + "\n");
+                    } catch (Exception ex) {
+                        outputArea.append("Erro ao salvar: " + ex.getMessage() + "\n");
+                    }
+                    keyField.setText("");
+                    valueField.setText("");
+                } else {
+                    outputArea.append("Preencha ambos os campos!\n");
+                }
             }
         });
     }
