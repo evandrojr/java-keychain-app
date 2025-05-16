@@ -1,3 +1,84 @@
+# Java Keychain App
+
+This project is a Java application that allows users to securely store and retrieve sensitive data using the system's encrypted keychain (Linux GNOME/KDE, macOS). The application features a simple graphical interface where users can save and load passwords associated with a user.
+
+## Project Structure
+
+The project is organized as follows:
+
+```
+java-keychain-app
+├── src
+│   ├── main
+│   │   ├── java
+│   │   │   └── com
+│   │   │       └── example
+│   │   │           └── keychainapp
+│   │   │               ├── Main.java          # Application entry point
+│   │   │               ├── ui
+│   │   │               │   └── MainFrame.java # GUI class
+│   │   │               └── logic
+│   │   │                   └── SystemKeychain.java # OS keychain integration
+│   │   └── resources
+│   └── test
+│       ├── java
+│       │   └── com
+│       │       └── example
+│       │           └── keychainapp
+│       │               └── logic
+│       │                   └── KeychainServiceTest.java # Automated tests
+│       └── resources
+├── build.gradle                # Gradle build script
+└── README.md                   # Project documentation
+```
+
+## Requirements and Compatibility
+
+- Java 7 or higher
+- Gradle
+
+## Requirements and Compatibility
+
+- Java 7 or higher
+- Gradle
+
+### Supported Operating Systems and Desktop Environments
+
+- **Linux**
+  - **Tested distributions:** Ubuntu 20.04+, Fedora 34+, Debian 11+, Arch Linux (2022+)
+  - **Supported desktop environments:**
+    - GNOME 3.36+
+    - KDE Plasma 5.18+
+  - **Keychain integration:**
+    - GNOME: `secret-tool` (libsecret)
+    - KDE: `kwalletcli`
+
+- **macOS**
+  - **Tested versions:** macOS 10.15 (Catalina)+, 11 (Big Sur), 12 (Monterey), 13 (Ventura)
+  - **Keychain integration:** Built-in `security` command
+
+- **Windows**
+  - **Tested versions:** Windows 10, Windows 11
+  - **Keychain integration:** Windows Credential Manager (via PowerShell)
+  - **Requirements:** PowerShell and the [CredentialManager](https://www.powershellgallery.com/packages/CredentialManager) module
+
+#### Windows Support
+
+On Windows, the application uses the Windows Credential Manager for secure password storage. This requires PowerShell e o módulo CredentialManager.
+
+**Se ocorrer erro ao salvar ou recuperar senhas no Windows:**
+- Certifique-se de que o PowerShell está instalado e atualizado.
+  - Se não estiver instalado, instale pela Microsoft Store (recomendado) ou pelo site oficial:
+    - [PowerShell na Microsoft Store](ms-windows-store://pdp/?productid=9MZ1SNWT0N5D)
+    - [PowerShell no site oficial](https://github.com/PowerShell/PowerShell)
+- Instale o módulo CredentialManager:
+  1. Abra o PowerShell como Administrador
+  2. Execute:
+     ```
+     Install-Module -Name CredentialManager -Scope CurrentUser
+     ```
+
+Após instalar, tente novamente. Não são necessárias outras dependências além de Java e Gradle.
 ## Como gerar o instalador para Windows
 
 1. Gere o JAR do aplicativo:
@@ -47,46 +128,7 @@ To run the program normally, use:
 ./gradlew run
 ```
 
-# Java Keychain App
 
-This project is a Java application that allows users to securely store and retrieve sensitive data using the system's encrypted keychain (Linux GNOME/KDE, macOS). The application features a simple graphical interface where users can save and load passwords associated with a user.
-
-## Project Structure
-
-The project is organized as follows:
-
-```
-java-keychain-app
-├── src
-│   ├── main
-│   │   ├── java
-│   │   │   └── com
-│   │   │       └── example
-│   │   │           └── keychainapp
-│   │   │               ├── Main.java          # Application entry point
-│   │   │               ├── ui
-│   │   │               │   └── MainFrame.java # GUI class
-│   │   │               └── logic
-│   │   │                   └── SystemKeychain.java # OS keychain integration
-│   │   └── resources
-│   └── test
-│       ├── java
-│       │   └── com
-│       │       └── example
-│       │           └── keychainapp
-│       │               └── logic
-│       │                   └── KeychainServiceTest.java # Automated tests
-│       └── resources
-├── build.gradle                # Gradle build script
-└── README.md                   # Project documentation
-```
-
-
-
-## Requirements and Compatibility
-
-- Java 7 or higher
-- Gradle
 
 ### Supported Operating Systems and Desktop Environments
 
