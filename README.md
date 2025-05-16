@@ -1,3 +1,28 @@
+## Como gerar o instalador para Windows
+
+1. Gere o JAR do aplicativo:
+   ```
+   ./gradlew jar
+   ```
+   O arquivo será criado em `build/libs/` (ex: `java-keychain-app-1.0.0.jar`).
+
+2. Instale o Inno Setup no Windows:
+   - Baixe em: https://jrsoftware.org/isinfo.php
+
+3. Copie para a mesma pasta:
+   - O JAR gerado (`build/libs/java-keychain-app-1.0.0.jar`)
+   - O script `install-deps.ps1`
+   - O arquivo `JavaKeychainApp.iss`
+
+4. (Opcional) Edite o arquivo `JavaKeychainApp.iss` para garantir que o nome do JAR está correto.
+
+5. Compile o instalador:
+   - Abra o Inno Setup Compiler
+   - Abra o arquivo `JavaKeychainApp.iss`
+   - Clique em “Compile”
+   - O instalador `.exe` será gerado na pasta de saída
+
+6. Execute o instalador `.exe` no Windows para instalar e configurar todas as dependências automaticamente.
 ## How to Run with Auto Reload (Linux)
 
 

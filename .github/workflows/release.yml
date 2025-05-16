@@ -28,7 +28,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: java-keychain-app-jar
-          path: build/libs/*.jar
+          path: build/libs/java-keychain-app-*.jar
 
   release:
     needs: build
@@ -46,6 +46,6 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: ./release-jars/*.jar
+          files: ./release-jars/java-keychain-app-*.jar
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
