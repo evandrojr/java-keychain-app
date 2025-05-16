@@ -5,14 +5,14 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import com.example.keychainapp.logic.KeychainService;
-import com.example.keychainapp.logic.KeychainUtils;
+import com.example.keychainapp.logic.SystemKeychain;
 import java.util.List;
 
 public class MainFrame extends JFrame {
     private JTextField keyField;
     private JTextField valueField;
     private JButton saveButton;
+    private JButton loadButton;
     private JTextArea outputArea;
 
 
@@ -25,16 +25,20 @@ public class MainFrame extends JFrame {
         JPanel inputPanel = new JPanel();
         inputPanel.setLayout(new GridLayout(3, 2));
 
-        inputPanel.add(new JLabel("Key:"));
+        inputPanel.add(new JLabel("User:"));
         keyField = new JTextField();
         inputPanel.add(keyField);
 
-        inputPanel.add(new JLabel("Value:"));
+        inputPanel.add(new JLabel("Password:"));
         valueField = new JTextField();
         inputPanel.add(valueField);
 
+
         saveButton = new JButton("Save");
         inputPanel.add(saveButton);
+
+        loadButton = new JButton("Load");
+        inputPanel.add(loadButton);
 
         outputArea = new JTextArea();
         outputArea.setEditable(false);
@@ -43,21 +47,25 @@ public class MainFrame extends JFrame {
         add(inputPanel, BorderLayout.NORTH);
         add(scrollPane, BorderLayout.CENTER);
 
-        // Load and display saved key-value pairs
-        try {
-            KeychainService keychainService = new KeychainService();
-            List<String> keys = KeychainUtils.listSavedKeys();
-            for (String key : keys) {
-                try {
-                    String value = keychainService.retrieve(key);
-                    outputArea.append("Saved: " + key + " = " + value + "\n");
-                } catch (Exception ex) {
-                    // Ignore errors for individual keys
+
+        // Mensagem inicial
+        outputArea.append("Enter the user and click Load to fetch the password.\n");
+        loadButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String key = keyField.getText();
+                if (key != null && !key.isEmpty()) {
+                    String loaded = SystemKeychain.loadPassword("KeychainApp", key);
+                    if (loaded != null) {
+                        outputArea.append("Password loaded for user '" + key + "': " + loaded + "\n");
+                    } else {
+                        outputArea.append("No password found for user '" + key + "'.\n");
+                    }
+                } else {
+                    outputArea.append("Please enter the user to load the password.\n");
                 }
             }
-        } catch (Exception ex) {
-            // Ignore errors on startup
-        }
+        });
 
         saveButton.addActionListener(new ActionListener() {
             @Override
@@ -65,17 +73,16 @@ public class MainFrame extends JFrame {
                 String key = keyField.getText();
                 String value = valueField.getText();
                 if (key != null && !key.isEmpty() && value != null && !value.isEmpty()) {
-                    try {
-                        KeychainService keychainService = new KeychainService();
-                        keychainService.save(key, value);
-                        outputArea.append("Saved: " + key + " = " + value + "\n");
-                    } catch (Exception ex) {
-                        outputArea.append("Erro ao salvar: " + ex.getMessage() + "\n");
+                    boolean ok = SystemKeychain.savePassword("KeychainApp", key, value);
+                    if (ok) {
+                        outputArea.append("Password saved in the system keychain for user: " + key + "\n");
+                    } else {
+                        outputArea.append("Error saving to the system keychain.\n");
                     }
                     keyField.setText("");
                     valueField.setText("");
                 } else {
-                    outputArea.append("Preencha ambos os campos!\n");
+                    outputArea.append("Please fill in both fields!\n");
                 }
             }
         });
