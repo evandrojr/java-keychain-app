@@ -78,7 +78,7 @@ public class MainFrame extends JFrame {
                 if (key != null && !key.isEmpty() && value != null && !value.isEmpty()) {
                     boolean ok = SystemKeychain.savePassword("KeychainApp", key, value);
                     if (ok) {
-                        outputArea.append("Value saved in the system keychain for key: " + key + "\n");
+                        outputArea.append("Value saved in the system keychain for key: " + key + ". Value: " + value + "\n");
                     } else {
                         outputArea.append("Error saving to the system keychain.\n");
                     }
