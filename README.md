@@ -64,21 +64,25 @@ java-keychain-app
 
 #### Windows Support
 
-On Windows, the application uses the Windows Credential Manager for secure password storage. This requires PowerShell e o módulo CredentialManager.
+On Windows, the application uses the Windows Credential Manager for secure password storage via native integration (JNA). No PowerShell or external module is required for the main app features.
 
-**Se ocorrer erro ao salvar ou recuperar senhas no Windows:**
-- Certifique-se de que o PowerShell está instalado e atualizado.
-  - Se não estiver instalado, instale pela Microsoft Store (recomendado) ou pelo site oficial:
-    - [PowerShell na Microsoft Store](ms-windows-store://pdp/?productid=9MZ1SNWT0N5D)
-    - [PowerShell no site oficial](https://github.com/PowerShell/PowerShell)
-- Instale o módulo CredentialManager:
-  1. Abra o PowerShell como Administrador
-  2. Execute:
-     ```
-     Install-Module -Name CredentialManager -Scope CurrentUser
-     ```
+**Requirements:**
+- Java 7 or higher (64-bit recommended)
+- Windows 10 or 11
 
-Após instalar, tente novamente. Não são necessárias outras dependências além de Java e Gradle.
+**How it works:**
+- The app uses native Windows API (Credential Manager) via JNA for secure password storage and retrieval.
+- All credential data is stored encrypted by Windows.
+
+**Troubleshooting:**
+- If you see errors like `UnsatisfiedLinkError` or issues saving/loading passwords:
+  - Make sure you are using a 64-bit Java (run `java -version` and check for "64-Bit").
+  - Ensure the JNA and jna-platform dependencies are present in your JAR (the build includes them by default).
+  - Run the app as a regular user (not as Administrator) for normal credential storage.
+  - If you upgraded from an old version, delete any old credentials and try again.
+- All errors and operations are logged to the console for easier troubleshooting.
+
+**No PowerShell or CredentialManager module is needed for the main app.**
 ## Como gerar o instalador para Windows
 
 1. Gere o JAR do aplicativo:
@@ -92,8 +96,8 @@ Após instalar, tente novamente. Não são necessárias outras dependências al�
 
 3. Copie para a mesma pasta:
    - O JAR gerado (`build/libs/java-keychain-app-1.0.0.jar`)
-   - O script `install-deps.ps1`
    - O arquivo `JavaKeychainApp.iss`
+   - (Opcional) O script `install-deps.ps1` (apenas se desejar instalar dependências extras, como Java, automaticamente)
 
 4. (Opcional) Edite o arquivo `JavaKeychainApp.iss` para garantir que o nome do JAR está correto.
 
