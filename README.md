@@ -1,5 +1,6 @@
 ## How to Run with Auto Reload (Linux)
 
+
 If you want the application to automatically recompile and restart every time you save a `.java` file, you can use the `entr` utility (Linux only):
 
 1. Install entr:
@@ -7,9 +8,9 @@ If you want the application to automatically recompile and restart every time yo
    sudo apt-get install entr
    ```
 
-2. In the project root, run:
+2. Run the provided script:
    ```
-   find src/main/java -name '*.java' | entr -r ./gradlew run
+   ./auto-reload.sh
    ```
 
 Every time you save a Java file, the application will be rebuilt and restarted automatically.
